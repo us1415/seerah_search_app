@@ -212,14 +212,9 @@ def hybrid_search(query: str, embeddings: np.ndarray, meta: list, model_name: st
         if any(variant and variant in norm_text for variant in query_variants):
             score += 0.25
 
-        query_tokens = [t for t in normalized_query.split() if len(t) > 2]
-        if query_tokens:
-            text_tokens = norm_text.split()
-            fuzzy_matches = sum(
-                1 for qt in query_tokens
-                if any(fuzz.ratio(qt, tt) >= 75 for tt in text_tokens)
-            )
-            score += min(0.2, fuzzy_matches * 0.05)
+        fuzzy_score = fuzz.token_set_ratio(normalized_query, norm_text)
+        if fuzzy_score >= 60:
+            score += (fuzzy_score / 100) * 0.25
 
         combined_scores.append(score)
 
