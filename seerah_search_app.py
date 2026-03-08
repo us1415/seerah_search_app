@@ -310,7 +310,7 @@ def build_youtube_timestamp_url(base_url: str, seconds: int):
 # ---------- Streamlit UI ----------
 st.set_page_config(page_title=APP_TITLE, layout="centered")
 st.title(APP_TITLE)
-st.caption("Private semantic + transliteration-aware search over your Seerah transcripts")
+st.caption("Search across Sheikh Yasir Qadhi's YouTube Seerah series — find any topic, story, or moment by keyword or question.")
 
 youtube_map = load_youtube_map()
 
