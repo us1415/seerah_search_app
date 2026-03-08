@@ -1,0 +1,10 @@
+# Generated search index
+seerah_search_index.npz
+seerah_search_meta.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
