@@ -346,18 +346,24 @@ else:
             st.caption(f"{range_label} • {len(g['hits'])} hits • score={g['score']:.4f}")
             st.write(preview)
 
-            c1, c2 = st.columns(2)
+                        c1, c2 = st.columns(2)
+
             with c1:
                 if watch_link:
                     st.link_button("▶ Watch", watch_link, use_container_width=True)
                 else:
                     st.button("▶ Watch", disabled=True, use_container_width=True, key=f"disabled_watch_{i}")
-            with c2:
-                st.text_area("Share", share_text, height=90, key=f"share_{i}")
 
-            with st.expander("Show discussion window"):
-                for hit in g["hits"]:
-                    st.write(f"**[{hit['timestamp']}]** {hit['text']}")
+            with c2:
+                if st.button("📋 Copy reference", use_container_width=True, key=f"copy_{i}"):
+                    st.toast("Reference ready below. Long-press to copy on phone.")
+
+            st.text_area(
+                "Share",
+                share_text,
+                height=90,
+                key=f"share_{i}"
+            )
 
             st.divider()
 
