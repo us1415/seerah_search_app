@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from sentence_transformers import SentenceTransformer
+from rapidfuzz import fuzz
 
 # ---------- Config ----------
 APP_TITLE = "Seerah AI Search"
@@ -85,6 +86,10 @@ def normalize_for_matching(text: str):
         r"\balayna\b": "alayna",
         r"\btalaa\b": "tala",
         r"\btal a\b": "tala",
+        r"\btalaal\b": "tala",
+        r"\bthalail\b": "tala",
+        r"\bthala\b": "tala",
+        r"\btalaal\b": "tala",
         r"\bawliyaa\b": "awliya",
         r"\bawliya\b": "awliya",
         r"\bkoran\b": "quran",
@@ -105,7 +110,7 @@ def expand_query(query: str):
         "mawdudi": ["mawdudi", "maududi", "modudi", "mawdoodi"],
         "badru": ["badru", "badr", "badrul"],
         "alayna": ["alayna", "alaina"],
-        "tala": ["tala", "talaa"],
+        "tala": ["tala", "talaa", "talaal", "thalail", "thala"],
         "awliya": ["awliya", "awliyaa"],
     }
 
@@ -209,8 +214,12 @@ def hybrid_search(query: str, embeddings: np.ndarray, meta: list, model_name: st
 
         query_tokens = [t for t in normalized_query.split() if len(t) > 2]
         if query_tokens:
-            overlap = sum(1 for t in query_tokens if t in norm_text)
-            score += min(0.2, overlap * 0.05)
+            text_tokens = norm_text.split()
+            fuzzy_matches = sum(
+                1 for qt in query_tokens
+                if any(fuzz.ratio(qt, tt) >= 75 for tt in text_tokens)
+            )
+            score += min(0.2, fuzzy_matches * 0.05)
 
         combined_scores.append(score)
 
