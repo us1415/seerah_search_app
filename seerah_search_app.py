@@ -337,12 +337,12 @@ else:
 
             lecture = pretty_lecture_name(g["file"])
             range_label = f"{g['start_timestamp']}–{g['end_timestamp']}" if g['start_timestamp'] != g['end_timestamp'] else g['start_timestamp']
-            preview = " ".join(hit["text"] for hit in g["hits"][:2])[:300]
+            preview = " ".join(hit["text"] for hit in g["hits"][:2])[:220]
 
             reference_text = f"{lecture} | {g['start_timestamp']}"
             share_text = f"{reference_text}\n{watch_link}" if watch_link else reference_text
 
-            st.markdown(f"### {i}. {lecture}")
+            st.markdown(f"#### {i}. {lecture}")
             st.caption(f"{range_label} • {len(g['hits'])} hits • score={g['score']:.4f}")
             st.write(preview)
 
@@ -353,7 +353,7 @@ else:
                 else:
                     st.button("▶ Watch", disabled=True, use_container_width=True, key=f"disabled_watch_{i}")
             with c2:
-                st.code(share_text, language=None)
+                st.text_area("Share", share_text, height=90, key=f"share_{i}")
 
             with st.expander("Show discussion window"):
                 for hit in g["hits"]:
