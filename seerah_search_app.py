@@ -270,7 +270,20 @@ def group_results(results, group_gap_seconds: int = GROUP_GAP_SECONDS, max_group
         groups.append(current)
 
     groups = sorted(groups, key=lambda g: (g["score"], len(g["hits"])), reverse=True)
-    return groups[:max_groups]
+
+    # Re-order so multiple groups from the same lecture appear consecutively,
+    # ranked by the best score that lecture achieved.
+    remaining = list(groups[:max_groups])
+    reordered = []
+    while remaining:
+        top = remaining.pop(0)
+        reordered.append(top)
+        same_file = [g for g in remaining if g["file"] == top["file"]]
+        for g in same_file:
+            remaining.remove(g)
+            reordered.append(g)
+
+    return reordered
 
 
 def load_youtube_map(csv_path=YOUTUBE_MAP_FILE):
@@ -337,7 +350,7 @@ else:
 
             lecture = pretty_lecture_name(g["file"])
             range_label = f"{g['start_timestamp']}–{g['end_timestamp']}" if g['start_timestamp'] != g['end_timestamp'] else g['start_timestamp']
-            preview = " ".join(hit["text"] for hit in g["hits"][:2])[:220]
+            preview = " ".join(hit["text"] for hit in g["hits"])[:600]
 
             reference_text = f"{lecture} | {g['start_timestamp']}"
             share_text = f"{reference_text}\n{watch_link}" if watch_link else reference_text
@@ -346,21 +359,13 @@ else:
             st.caption(f"{range_label} • {len(g['hits'])} hits • score={g['score']:.4f}")
             st.write(preview)
 
-            c1, c2 = st.columns(2)
-            with c1:
-                if watch_link:
-                    st.link_button("▶ Watch", watch_link, use_container_width=True)
-                else:
-                    st.button("▶ Watch", disabled=True, use_container_width=True, key=f"disabled_watch_{i}")
-            with c2:
-                if st.button("📋 Copy reference", use_container_width=True, key=f"copy_{i}"):
-                    st.toast("Reference ready below. Long-press to copy on phone.")
-            st.text_area(
-                "Share",
-                share_text,
-                height=90,
-                key=f"share_{i}"
-            )
+            if watch_link:
+                st.link_button("▶ Watch", watch_link, use_container_width=True)
+            else:
+                st.button("▶ Watch", disabled=True, use_container_width=True, key=f"disabled_watch_{i}")
+
+            st.caption("Reference (click the copy icon →)")
+            st.code(share_text, language=None)
 
             st.divider()
 
